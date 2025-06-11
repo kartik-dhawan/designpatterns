@@ -1,6 +1,6 @@
-# Singleton Pattern in TypeScript
+# Design Patterns & their implementations
 
-This project demonstrates the Singleton design pattern using a class-based approach in TypeScript.
+This project demonstrates the design patterns using a class-based approach in TypeScript.
 
 ## 🛠 How to Run
 
