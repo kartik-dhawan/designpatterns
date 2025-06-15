@@ -1,11 +1,11 @@
-type RoleType = "DEVELOPER" | "TESTER";
-type ExpGroupType = "JUNIOR" | "SENIOR" | "MANAGER";
+type IRoleType = "DEVELOPER" | "TESTER";
+type IExpGroupType = "JUNIOR" | "SENIOR" | "MANAGER";
 
-class User {
-  role: RoleType;
-  experience: ExpGroupType;
+class IUser {
+  role: IRoleType;
+  experience: IExpGroupType;
 
-  constructor(role: RoleType, experience: ExpGroupType) {
+  constructor(role: IRoleType, experience: IExpGroupType) {
     this.role = role;
     this.experience = experience;
   }
@@ -15,10 +15,18 @@ class User {
       `User of role ${this.role} & experience ${this.experience} is logged in.`
     );
   }
+
+  public code(): void {
+    console.warn(`${this.role} can’t code.`);
+  }
+
+  public test(): void {
+    console.warn(`${this.role} can’t test.`);
+  }
 }
 
-class Developer extends User {
-  constructor(exp: ExpGroupType) {
+class IDeveloper extends IUser {
+  constructor(exp: IExpGroupType) {
     super("DEVELOPER", exp);
   }
 
@@ -27,66 +35,42 @@ class Developer extends User {
   }
 }
 
-class Tester extends User {
-  constructor(exp: ExpGroupType) {
+class ITester extends IUser {
+  constructor(exp: IExpGroupType) {
     super("TESTER", exp);
   }
 
   test() {
-    console.log(`${this.experience} tester of is testing.`);
+    console.log(`${this.experience} tester is testing.`);
   }
 }
 
-class DeveloperFactory {
-  createDeveloper(exp: ExpGroupType) {
-    if (exp === "JUNIOR") {
-      return new Developer("JUNIOR");
-    } else if (exp === "MANAGER") {
-      return new Developer("MANAGER");
-    } else if (exp === "SENIOR") {
-      return new Developer("SENIOR");
-    } else {
-      throw new Error("Role not defined");
-    }
+abstract class IUserFactory {
+  protected abstract createUser(exp: IExpGroupType): IUser;
+
+  public createNewUser(exp: IExpGroupType): IUser {
+    const user = this.createUser(exp);
+    return user;
   }
 }
 
-class TesterFactory {
-  createTester(exp: ExpGroupType) {
-    if (exp === "JUNIOR") {
-      return new Tester("JUNIOR");
-    } else if (exp === "MANAGER") {
-      return new Tester("MANAGER");
-    } else if (exp === "SENIOR") {
-      return new Tester("SENIOR");
-    } else {
-      throw new Error("Role not defined");
-    }
+class IDeveloperFactory extends IUserFactory {
+  protected createUser(exp: IExpGroupType): IUser {
+    return new IDeveloper(exp);
   }
 }
 
-class UserFactory {
-  createUser(role: RoleType) {
-    if (role === "DEVELOPER") {
-      return new DeveloperFactory();
-    } else if (role === "TESTER") {
-      return new TesterFactory();
-    } else {
-      throw new Error("Role not defined");
-    }
+class ITesterFactory extends IUserFactory {
+  protected createUser(exp: IExpGroupType): IUser {
+    return new ITester(exp);
   }
 }
 
-const factory = new UserFactory();
-const juniorDev = (
-  factory.createUser("DEVELOPER") as DeveloperFactory
-).createDeveloper("JUNIOR");
-const seniorTester = (
-  factory.createUser("TESTER") as TesterFactory
-).createTester("SENIOR");
+const developerFactory = new IDeveloperFactory();
+const testerFactory = new ITesterFactory();
 
-juniorDev.login(); // User of role DEVELOPER & experience JUNIOR is logged in.
-juniorDev.code(); // JUNIOR Developer is coding.
+const juniorDeveloper = developerFactory.createNewUser("JUNIOR");
+const juniorTester = testerFactory.createNewUser("JUNIOR");
 
-seniorTester.login(); // User of role TESTER & experience SENIOR is logged in.
-seniorTester.test(); // SENIOR tester of is testing.
+juniorDeveloper.code(); // JUNIOR Developer is coding.
+juniorTester.code(); // TESTER can’t code.
